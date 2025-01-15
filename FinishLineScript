@@ -1,0 +1,23 @@
+local finishLine = script.Parent 
+
+local debounce = {}
+
+finishLine.Touched:Connect(function(hit)
+	local character = hit.Parent
+	if character and character:FindFirstChild("Humanoid") then
+		local player = game.Players:GetPlayerFromCharacter(character)
+		if player and not debounce[player] then
+			debounce[player] = true 
+			if not player:FindFirstChild("HasFinished") then
+				local hasStarted = Instance.new("BoolValue")
+				hasStarted.Name = "HasFinished"
+				hasStarted.Value = true
+				hasStarted.Parent = player
+				print(player.Name .. " has finished")
+			end
+			task.delay(1, function()
+				debounce[player] = nil
+			end)
+		end
+	end
+end)

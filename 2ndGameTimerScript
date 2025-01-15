@@ -1,0 +1,30 @@
+local textLabel = script.Parent
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local FYFHCylinder = workspace:WaitForChild("FYFHCylinder")
+
+local timerDuration = 30
+local timerStarted = false
+
+
+local function startTimer()
+	if timerStarted then return end
+	timerStarted = true
+	textLabel.Visible = true
+
+	for timeRemaining = timerDuration, 0, -1 do
+		textLabel.Text = "Time Remaining: " .. timeRemaining
+		wait(1)
+	end
+
+	
+	textLabel.Text = "Your time is up."
+end
+
+
+FYFHCylinder.Touched:Connect(function(hit)
+	if hit.Parent == character and not timerStarted then
+		startTimer()
+	end
+end)

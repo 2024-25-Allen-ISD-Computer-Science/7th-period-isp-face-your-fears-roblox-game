@@ -1,0 +1,21 @@
+local player = game:GetService("Players").LocalPlayer
+local character = workspace:WaitForChild(player.Name)
+local humanoid = character:WaitForChild('Humanoid')
+
+local RunningSpeed = 25 -- Running speed
+local NormalSpeed = 16  -- Normal speed
+local Key = "LeftShift"  -- Sprint Key
+
+Running = false
+
+function Handler(BindName, InputState)
+	if InputState == Enum.UserInputState.Begin and BindName == 'RunBind' then
+		Running = true
+		humanoid.WalkSpeed = RunningSpeed
+	elseif InputState == Enum.UserInputState.End and BindName == 'RunBind' then
+		Running = false
+		humanoid.WalkSpeed = NormalSpeed
+	end
+end
+
+game:GetService('ContextActionService'):BindAction('RunBind', Handler, true, Enum.KeyCode[Key])

@@ -1,0 +1,13 @@
+local plr = game.Players.LocalPlayer
+local char = plr.Character or plr.CharacterAdded:Wait()
+local hum = char:WaitForChild("Humanoid")
+
+
+hum.Died:Connect(function()
+	script.Parent.Container.Visible = true
+	script.Parent.LobbyButton.Visible = true
+end)
+
+script.Parent.LobbyButton.MouseButton1Click:Connect(function()
+	game:GetService("TeleportService"):Teleport(127654903775818, plr)
+end)

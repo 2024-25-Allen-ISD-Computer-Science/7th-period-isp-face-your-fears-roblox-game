@@ -1,0 +1,81 @@
+local Players = game:GetService("Players")
+
+local nextButton = script.Parent:WaitForChild("NextButton")
+local lastButton = script.Parent:WaitForChild("LastButton")
+local playerLabel = script.Parent:WaitForChild("PlayerLabel")
+
+local cam = workspace.CurrentCamera
+
+local char = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+local hum = char:WaitForChild("Humanoid")
+
+local isSpectating = false
+local currentIndex = 1
+local playerList = {}
+
+
+local function updatePlayers()
+	local newPlayerList = {}
+	
+	for plrs, plr in pairs(Players:GetPlayers()) do
+		if plr ~= game.Players.LocalPlayer then
+			table.insert(newPlayerList, plr.Name)
+		end
+	end
+	
+	playerList = newPlayerList
+end
+
+
+local function updateSpectator()
+	local foundPlayer = Players:FindFirstChild(playerList[currentIndex])
+	
+	if foundPlayer then
+		playerLabel.Text = foundPlayer.Name 
+		cam.CameraSubject = foundPlayer.Character
+	end
+end
+
+
+local function nextPlayer()
+	if currentIndex < #playerList then
+		currentIndex += 1
+	else
+		currentIndex = 1
+	end
+	
+	updateSpectator()
+end
+
+
+local function lastPlayer()
+	if currentIndex > 1 then
+		currentIndex -= 1
+	else
+		currentIndex = #playerList
+	end
+	
+	updateSpectator()
+end
+
+
+local function quitSpectating()
+	cam.CameraSubject = hum
+	
+	currentIndex = 1
+end
+
+script.Parent:GetPropertyChangedSignal("Visible"):Connect(function()
+	if script.Parent.Visible then
+		if #Players:GetPlayers() > 1 then
+			isSpectating = true
+			updatePlayers()
+			updateSpectator()
+		end
+	else
+		script.Parent.Visible = false
+	end
+end)
+
+nextButton.MouseButton1Click:Connect(nextPlayer)
+lastButton.MouseButton1Click:Connect(lastPlayer)

@@ -1,0 +1,95 @@
+local light = workspace:WaitForChild("Light")
+local greenColor = Color3.new(0, 1, 0)
+local redColor = Color3.new(1, 0, 0)
+
+local redLightDuration = math.random(6, 10)
+local greenLightDuration = math.random(7, 11)
+local finishLine = workspace:WaitForChild("FinishLine")
+local roundDuration = 120
+local times = 0
+local roundEnded = false
+
+local function startCountdown(duration)
+	for i = duration, 0, -1 do
+		print("Time left: " .. i .. " seconds")
+		times += 1
+		wait(1)
+	end
+end
+
+local function eliminatePlayers()
+	for _, player in pairs(game.Players:GetPlayers()) do
+		if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+			local character = player.Character
+			if (character.HumanoidRootPart.Position - finishLine.Position).Magnitude >= 10 then
+				local humanoid = character:FindFirstChild("Humanoid")
+				if humanoid then
+					humanoid.Health = 0
+				end
+			end
+		end
+	end
+end
+
+local function toggleLight(isGreen)
+	if isGreen then
+		light.BrickColor = BrickColor.new("Lime green")
+		light.Color = greenColor
+	else
+		light.BrickColor = BrickColor.new("Bright red")
+		light.Color = redColor
+	end
+end
+
+local function detectMovementDuringRedLight(duration, graceperiod)
+	wait(graceperiod)
+	local endTime = tick() + (duration - graceperiod)
+	while tick() < endTime do
+		for _, player in pairs(game.Players:GetPlayers()) do
+			if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+				local humanoid = player.Character:FindFirstChild("Humanoid")
+				local hasStarted = player:FindFirstChild("HasStarted")
+				local hasFinished = player:FindFirstChild("HasFinished")
+
+				if hasStarted and hasStarted.Value and not hasFinished then
+					if humanoid and humanoid.MoveDirection.Magnitude > 0 then
+						humanoid.Health = 0
+					else
+						print(player.Name .. " is not moving.")
+					end
+				else
+					print(player.Name .. " has not crossed the starting line. Ignoring.")
+				end
+			end
+		end
+		wait(0.1)
+	end
+end
+
+task.spawn(startCountdown, roundDuration)
+
+while not roundEnded do
+	redLightDuration = math.random(6, 10)
+	greenLightDuration = math.random(7, 11)
+
+	toggleLight(true)
+	wait(greenLightDuration)
+
+	toggleLight(false)
+	detectMovementDuringRedLight(redLightDuration, 0.5)
+	
+	for _, player in pairs(game.Players:GetPlayers()) do
+		if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+			local character = player.Character
+			if (character.HumanoidRootPart.Position - finishLine.Position).Magnitude < 10 then
+				player:Kick("Congratulations! You reached the finish line!")
+			end
+		end
+	end
+	
+	if times >= roundDuration then
+		eliminatePlayers()
+		times = 0
+		roundEnded = true
+	end
+end

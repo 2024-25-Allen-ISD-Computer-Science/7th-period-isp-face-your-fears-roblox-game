@@ -1,0 +1,28 @@
+local clockPart = workspace:WaitForChild("ClockPart")
+local surfaceGui = clockPart:WaitForChild("SurfaceGui")
+local timerLabel = surfaceGui:WaitForChild("TextLabel")
+local roundDuration = 120
+
+
+
+local function formatTime(seconds)
+	local minutes = math.floor(seconds / 60)
+	local remainingSeconds = seconds % 60
+	return string.format("%d:%02d", minutes, remainingSeconds)
+end
+
+
+local function updateClock(timeLeft)
+	local formattedTime = formatTime(timeLeft)
+	timerLabel.Text = formattedTime
+end
+
+local function startCountdown(duration)
+	for i = duration, 0, -1 do
+		updateClock(i)
+		wait(1)
+	end
+	print("Round over! Timer has stopped.")
+end
+
+startCountdown(roundDuration)

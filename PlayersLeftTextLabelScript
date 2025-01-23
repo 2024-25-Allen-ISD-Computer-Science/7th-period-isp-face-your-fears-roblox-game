@@ -1,0 +1,21 @@
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local alive = replicatedStorage:WaitForChild("AlivePlayers")
+
+local textLabel = script.Parent
+
+
+local function updateDisplay()
+	if alive:GetAttribute("Visible") then
+		textLabel.Visible = true
+		textLabel.Text = "Players Left: " .. alive.Value
+	else
+		textLabel.Visible = false
+	end
+end
+
+
+alive:GetAttributeChangedSignal("Visible"):Connect(updateDisplay)
+alive.Changed:Connect(updateDisplay)
+
+
+updateDisplay()

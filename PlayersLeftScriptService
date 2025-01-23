@@ -1,0 +1,55 @@
+local players = game:GetService("Players")
+local replicatedStorage = game:GetService("ReplicatedStorage")
+
+
+local alive = Instance.new("IntValue")
+alive.Name = "AlivePlayers"
+alive.Value = 0
+alive.Parent = replicatedStorage
+alive:SetAttribute("Visible", false)
+
+
+local function countAlivePlayers()
+	local aliveCount = 0
+	for _, player in ipairs(players:GetPlayers()) do
+		if player.Character and player.Character:FindFirstChild("Humanoid") then
+			local humanoid = player.Character.Humanoid
+			if humanoid.Health > 0 then
+				aliveCount += 1
+			end
+		end
+	end
+	return aliveCount
+end
+
+
+local function updateAliveCount()
+	if alive:GetAttribute("Visible") then
+		alive.Value = countAlivePlayers()
+	end
+end
+
+
+players.PlayerAdded:Connect(function(player)
+	player.CharacterAdded:Connect(function(character)
+		local humanoid = character:WaitForChild("Humanoid")
+		humanoid.Died:Connect(updateAliveCount)
+	end)
+	updateAliveCount()
+end)
+
+players.PlayerRemoving:Connect(updateAliveCount)
+
+game:GetService("RunService").Stepped:Connect(updateAliveCount)
+
+
+local cylinder = workspace:FindFirstChild("FYFHCylinder")
+if cylinder then
+	cylinder.Touched:Connect(function(hit)
+		local touchingPlayer = players:GetPlayerFromCharacter(hit.Parent)
+		if touchingPlayer then
+			alive:SetAttribute("Visible", true)
+			updateAliveCount()
+		end
+	end)
+end

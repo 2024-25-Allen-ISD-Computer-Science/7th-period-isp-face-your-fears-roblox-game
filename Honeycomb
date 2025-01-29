@@ -1,0 +1,171 @@
+local gameLength = 120
+local playersAlive = {}
+local playersCompleted = {}
+
+local redLight = false
+local cookieGame = true
+
+local playerCookieCracks = {}
+local playerMouses = {}
+
+game.ReplicatedStorage.SquidGameRE.OnServerEvent:Connect(function(player, mouseStatus, mouseCF)
+	if mouseStatus then
+		playerMouses[player] = mouseCF
+
+	else
+		playerMouses[player] = nil
+	end
+end)
+
+game:GetService("RunService").Heartbeat:Connect(function()
+
+	for i, player in pairs(game.Players:GetPlayers()) do
+
+		if player.Character and player.Character:FindFirstChild("Humanoid") then
+
+			if cookieGame then
+
+				if playerMouses[player] and script.Parent.Honeycomb.Cookies:FindFirstChild(player.Name .. "Cookie") then
+
+					local cookie = script.Parent.Honeycomb.Cookies[player.Name .. "Cookie"]
+
+					local nextPiece = nil
+
+					for i = 1, #cookie.Shape:GetChildren() do
+
+						if cookie.Shape[i].Color == Color3.fromRGB(27, 42, 53) then
+
+							nextPiece = cookie.Shape[i]
+
+							break
+						end
+					end
+
+					if nextPiece and playerMouses[player] == nextPiece then
+
+						nextPiece.Color = Color3.fromRGB(62, 223, 17)
+
+
+					elseif playerMouses[player].Parent ~= script.Parent.Honeycomb.Cookies[player.Name .. "Cookie"].Shape and not playerCookieCracks[player] then
+
+						playerCookieCracks[player] = true
+
+						game.ReplicatedStorage.HoneycombCrackDecal:Clone().Parent = script.Parent.Honeycomb.Cookies[player.Name .. "Cookie"].Cookie
+
+						script.Crack:Play()
+
+						wait(3)
+						playerCookieCracks[player] = false
+
+
+					elseif not nextPiece then
+
+						table.remove(playersAlive, table.find(playersAlive, player))
+						table.insert(playersCompleted, player)
+
+						script.Parent.Honeycomb.Cookies[player.Name .. "Cookie"]:Destroy()
+
+						player.Character.HumanoidRootPart.Anchored = false
+					end
+				end
+			end
+		end
+	end
+end)
+
+wait(3)
+
+
+playersAlive = {}
+playersCompleted = {}
+
+for i, player in pairs(game.Players:GetPlayers()) do
+
+	player:LoadCharacter()
+
+	table.insert(playersAlive, player)
+
+
+	player.Character.Humanoid.Died:Connect(function()
+
+		table.remove(playersAlive, table.find(playersAlive, player))
+	end)
+end
+
+script.Parent.Honeycomb.PlayerCells:ClearAllChildren()
+
+game.ReplicatedStorage.SquidGameRE:FireAllClients("status", "CUT THE COOKIE", Color3.fromRGB(255, 255, 255))
+
+
+for i, spawnPart in pairs(script.Parent.Honeycomb.Spawns:GetChildren()) do
+
+	local player = playersAlive[i]
+	
+	if player then
+		local newBlock = game.ReplicatedStorage.HoneycombTemplate:Clone()
+
+		newBlock:SetPrimaryPartCFrame(spawnPart.CFrame)
+
+
+		newBlock.Parent = script.Parent.Honeycomb.PlayerCells
+
+		player.Character.HumanoidRootPart.CFrame = newBlock.SpawnPart.CFrame
+		wait()
+		player.Character.HumanoidRootPart.Anchored = true
+
+
+		local cookie = game.ReplicatedStorage.HoneycombCookies:GetChildren()[math.random(1, #game.ReplicatedStorage.HoneycombCookies:GetChildren())]:Clone()
+		cookie.Name = player.Name .. "Cookie"
+		cookie.Parent = script.Parent.Honeycomb.Cookies
+		cookie.Shape["1"].Color = Color3.fromRGB(62, 223, 17)
+
+		game.ReplicatedStorage.SquidGameRE:FireClient(player, "honeycomb", cookie)
+
+
+		cookie.Cookie.ChildAdded:Connect(function()
+
+			if #cookie.Cookie:GetChildren() > 2 then
+
+				player.Character.Humanoid.Health = 0
+				script.Shot:Play()
+			end
+		end)
+	end
+end
+
+
+
+local timeLeft = gameLength
+
+
+cookieGame = true
+
+while timeLeft > 0 and #playersAlive > 0 do
+
+	timeLeft -= 1
+
+	local mins = math.floor(timeLeft / 60)
+	local secs = timeLeft % 60
+
+	if string.len(mins) < 2 then mins = "0" .. mins end
+	if string.len(secs) < 2 then secs = "0" .. secs end
+
+	game.ReplicatedStorage.SquidGameRE:FireAllClients("timer", mins .. ":" .. secs)
+
+	wait(1)
+end
+
+
+script.Parent.Honeycomb.Cookies:ClearAllChildren()
+
+
+for i, player in pairs(playersAlive) do
+
+	player.Character.Humanoid.Health = 0
+
+	script.Shot:Play()
+end
+
+
+game.ReplicatedStorage.SquidGameRE:FireAllClients("honeycombEnd")
+cookieGame = false

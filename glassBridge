@@ -1,0 +1,59 @@
+local plrs = game:GetService('Players')
+
+local debris = game:GetService('Debris')
+
+local Pairs = {}
+
+local function initGlass (v : Part)
+	local deb = false
+
+	v.Touched:Connect(function(hit)
+		if deb then
+			return
+		end
+
+		local plr = plrs:GetPlayerFromCharacter(hit.Parent)
+
+		if not plr then
+			return
+		end
+
+		local hum = hit.Parent:FindFirstChildOfClass('Humanoid')
+
+		local hrp : Part = hit.Parent:FindFirstChild('HumanoidRootPart')
+
+		if not (hum or hrp) then
+			return
+		end
+
+		deb = true
+
+		hum.JumpPower = 0
+		hum.JumpHeight = 0
+		hrp.AssemblyLinearVelocity = hrp.Position
+
+		v.Anchored = false
+
+		v:SetNetworkOwner(nil)
+
+		v.CanCollide = false
+
+		local SFXs = script.Parent.glassSFX:GetChildren()
+
+		local randomSFX = SFXs[math.random(1,#SFXs)]:Clone()
+
+		randomSFX.Parent = v
+
+		randomSFX:Play()
+
+		debris:AddItem(v,5)
+	end)
+end
+
+for i,v in pairs(script.Parent.glass:GetChildren()) do
+	local rng = math.random(1,2)
+	
+	local glass = v:GetChildren()[rng]
+	
+	initGlass(glass)
+end

@@ -1,0 +1,39 @@
+local bridgeClock = workspace:WaitForChild("BridgeClock")
+local surfaceGui = bridgeClock:WaitForChild("SurfaceGui")
+local timerLabel = surfaceGui:FindFirstChild("TextLabel")
+local roundDuration = 120
+local bridgeBegin = workspace:WaitForChild("BridgeBegin")
+
+local countdownActive = false
+
+local function formatTime(seconds)
+	local minutes = math.floor(seconds / 60)
+	local remainingSeconds = seconds % 60
+	return string.format("%d:%02d", minutes, remainingSeconds)
+end
+
+local function updateClock(timeLeft)
+	if timerLabel then
+		timerLabel.Text = formatTime(timeLeft)
+	end
+end
+
+local function startCountdown(duration)
+	if countdownActive then return end
+	countdownActive = true
+
+	for i = duration, 0, -1 do
+		updateClock(i)
+		wait(1)
+	end
+
+	print("The round is over.")
+	countdownActive = false
+end
+
+bridgeBegin.Touched:Connect(function(hit)
+	local player = game.Players:GetPlayerFromCharacter(hit.Parent)  
+	if player and not countdownActive then
+		startCountdown(roundDuration)
+	end
+end)

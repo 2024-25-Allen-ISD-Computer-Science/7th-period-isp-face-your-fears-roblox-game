@@ -1,0 +1,15 @@
+while true do
+	for _, light in pairs(workspace:GetDescendants()) do
+		if light:IsA("PointLight") then
+			
+			light.Color = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))
+
+			
+			light.Brightness = 5 
+			light.Range = 60      
+
+			
+		end
+	end
+	wait(1) 
+end

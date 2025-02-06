@@ -1,0 +1,41 @@
+local doors = {
+	game.Workspace:FindFirstChild("Door1"),
+	game.Workspace:FindFirstChild("Door2"),
+	
+}
+
+local timerPart = game.Workspace:FindFirstChild("TimerDisplayPart") 
+local timerLabel = timerPart:FindFirstChild("SurfaceGui"):FindFirstChild("TimerLabel")
+
+local unlockTime = 5  
+local openDuration = 5 
+
+local function updateDoor(door, status)
+	if status == "open" then
+		door.CanCollide = false
+		door.Transparency = 0.5 
+	else
+		door.CanCollide = true
+		door.Transparency = 0 
+	end
+end
+
+while true do
+	for i = unlockTime, 0, -1 do
+		timerLabel.Text = "Door opens in: " .. i .. "s"
+		wait(1)
+	end
+
+	for _, door in ipairs(doors) do
+		updateDoor(door, "open")
+	end
+
+	for i = openDuration, 0, -1 do
+		timerLabel.Text = "Doors stay open for: " .. i .. "s"
+		wait(1)
+	end
+
+	for _, door in ipairs(doors) do
+		updateDoor(door, "closed")
+	end
+end

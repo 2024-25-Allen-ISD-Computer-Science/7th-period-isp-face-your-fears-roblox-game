@@ -1,0 +1,11 @@
+local button = script.Parent:WaitForChild("TextButton")
+local valueLabel = script.Parent:WaitForChild("TextLabel")
+
+local value = 0
+
+local function increaseValue()
+	value = value + 1
+	valueLabel.Text = "Value: " .. value
+end
+
+button.MouseButton1Click:Connect(increaseValue)

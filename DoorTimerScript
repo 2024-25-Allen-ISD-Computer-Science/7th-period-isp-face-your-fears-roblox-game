@@ -1,41 +1,116 @@
-local doors = {
-	game.Workspace:FindFirstChild("Door1"),
-	game.Workspace:FindFirstChild("Door2"),
-	
-}
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
 
-local timerPart = game.Workspace:FindFirstChild("TimerDisplayPart") 
+
+local doors = {}
+for _, obj in ipairs(workspace:GetChildren()) do
+	if obj:IsA("Model") and obj:FindFirstChild("MainFrame") and obj:FindFirstChild("Hinge") then
+		table.insert(doors, {
+			model = obj,
+			hinge = obj:FindFirstChild("Hinge"),
+			originalCFrame = obj:FindFirstChild("Hinge").CFrame
+		})
+	end
+end
+
+local timerPart = workspace:FindFirstChild("TimerDisplayPart")
 local timerLabel = timerPart:FindFirstChild("SurfaceGui"):FindFirstChild("TimerLabel")
 
 local unlockTime = 5  
 local openDuration = 5 
 
-local function updateDoor(door, status)
-	if status == "open" then
-		door.CanCollide = false
-		door.Transparency = 0.5 
-	else
-		door.CanCollide = true
-		door.Transparency = 0 
+
+local platform = workspace:FindFirstChild("TimerPlatform")
+
+
+local playersTouchedPlatform = {}
+
+
+local function updateDoor(doorData, status)
+	local hinge = doorData.hinge
+	if hinge then
+		local goal = {}
+		if status == "open" then
+			goal.CFrame = doorData.originalCFrame * CFrame.Angles(0, math.rad(270), 0)
+		else
+			goal.CFrame = doorData.originalCFrame
+		end
+
+		local tweenInfo = TweenInfo.new(1)
+		local tween = TweenService:Create(hinge, tweenInfo, goal)
+		tween:Play()
 	end
 end
+
+
+local function onPlatformTouch(otherPart)
+	local player = Players:GetPlayerFromCharacter(otherPart.Parent)
+	if player then
+		playersTouchedPlatform[player] = true
+	end
+end
+
+
+if platform then
+	platform.Touched:Connect(onPlatformTouch)
+end
+
 
 while true do
 	for i = unlockTime, 0, -1 do
-		timerLabel.Text = "Door opens in: " .. i .. "s"
+		timerLabel.Text = "Doors open in: " .. i .. "s"
 		wait(1)
 	end
 
-	for _, door in ipairs(doors) do
-		updateDoor(door, "open")
+
+	for _, doorData in ipairs(doors) do
+		updateDoor(doorData, "open")
 	end
+
 
 	for i = openDuration, 0, -1 do
-		timerLabel.Text = "Doors stay open for: " .. i .. "s"
+		timerLabel.Text = "Doors closing in: " .. i .. "s"
 		wait(1)
 	end
 
-	for _, door in ipairs(doors) do
-		updateDoor(door, "closed")
+
+	for _, doorData in ipairs(doors) do
+		updateDoor(doorData, "closed")
+	end
+
+
+	for _, player in ipairs(Players:GetPlayers()) do
+		if not playersTouchedPlatform[player] then
+			local character = player.Character
+			if character then
+				local humanoid = character:FindFirstChild("Humanoid")
+				if humanoid then
+					humanoid.Health = 0
+				end
+			end
+		end
+	end
+
+
+	for i = unlockTime, 0, -1 do
+		timerLabel.Text = "Doors open in: " .. i .. "s"
+		wait(1)
+	end
+
+	
+	for _, doorData in ipairs(doors) do
+		updateDoor(doorData, "open")
+	end
+
+	
+	playersTouchedPlatform = {}
+
+	
+	wait(5)
+
+
+	for _, doorData in ipairs(doors) do
+		updateDoor(doorData, "closed")
 	end
 end
+

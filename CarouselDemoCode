@@ -1,0 +1,8 @@
+local hinge = script.Parent:FindFirstChild("HingeConstraint")
+
+if hinge then
+	hinge.AngularVelocity = 1
+
+	wait(5)
+	hinge.AngularVelocity = -1
+end

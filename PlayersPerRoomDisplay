@@ -1,0 +1,15 @@
+local part = script.Parent
+local surfaceGui = part:FindFirstChild("SurfaceGui")
+local textLabel = surfaceGui and surfaceGui:FindFirstChild("TextLabel")
+
+local minNumber = 1
+local maxNumber = 5
+local updateInterval = 20
+
+if textLabel then
+	while true do
+		local randomNumber = math.random(minNumber, maxNumber)
+		textLabel.Text = tostring(randomNumber)
+		wait(updateInterval)
+	end
+end

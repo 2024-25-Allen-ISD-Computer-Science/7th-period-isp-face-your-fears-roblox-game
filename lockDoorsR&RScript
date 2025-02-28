@@ -1,0 +1,58 @@
+local TweenService = game:GetService("TweenService")
+
+local hinge = script.Parent.Hinge
+local lockPrompt = script.Parent.MainFrame:FindFirstChild("Lock")
+local timerPlatform = workspace:FindFirstChild("TimerPlatform")
+
+local isLocked = false
+local isClosed = false
+local canLock = false
+
+local goalOpen = {CFrame = hinge.CFrame * CFrame.Angles(0, math.rad(270), 0)}
+local goalClose = {CFrame = hinge.CFrame * CFrame.Angles(0, 0, 0)}
+
+local tweenInfo = TweenInfo.new(1)
+local tweenOpen = TweenService:Create(hinge, tweenInfo, goalOpen)
+local tweenClose = TweenService:Create(hinge, tweenInfo, goalClose)
+
+hinge.CFrame = hinge.CFrame * CFrame.Angles(0, math.rad(270), 0)
+
+lockPrompt.Enabled = false
+lockPrompt.ActionText = "Lock"
+
+lockPrompt.Triggered:Connect(function()
+	if canLock then
+		isLocked = not isLocked
+
+		if isLocked then
+			tweenClose:Play()
+			lockPrompt.ActionText = "Unlock"
+			isClosed = true
+		else
+			tweenOpen:Play()
+			lockPrompt.ActionText = "Lock"
+			isClosed = false
+		end
+	end
+end)
+
+local function onTouch(part)
+	local player = game.Players:GetPlayerFromCharacter(part.Parent)
+	if player then
+		canLock = true
+		lockPrompt.Enabled = true
+	end
+end
+
+local function onTouchEnd(part)
+	local player = game.Players:GetPlayerFromCharacter(part.Parent)
+	if player then
+		canLock = false
+		lockPrompt.Enabled = false
+	end
+end
+
+if timerPlatform then
+	timerPlatform.Touched:Connect(onTouch)
+	timerPlatform.TouchEnded:Connect(onTouchEnd)
+end

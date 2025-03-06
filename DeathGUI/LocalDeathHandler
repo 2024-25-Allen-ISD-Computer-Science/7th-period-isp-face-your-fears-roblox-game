@@ -1,13 +1,19 @@
 local plr = game.Players.LocalPlayer
 local char = plr.Character or plr.CharacterAdded:Wait()
 local hum = char:WaitForChild("Humanoid")
-
+local MarketplaceService = game:GetService("MarketplaceService")
+local reviveProductId = 3232090523
 
 hum.Died:Connect(function()
 	script.Parent.Container.Visible = true
 	script.Parent.LobbyButton.Visible = true
+	script.Parent.ReviveButton.Visible = true
 end)
 
 script.Parent.LobbyButton.MouseButton1Click:Connect(function()
 	game:GetService("TeleportService"):Teleport(127654903775818, plr)
+end)
+
+script.Parent.ReviveButton.MouseButton1Click:Connect(function()
+	MarketplaceService:PromptProductPurchase(plr, reviveProductId)
 end)

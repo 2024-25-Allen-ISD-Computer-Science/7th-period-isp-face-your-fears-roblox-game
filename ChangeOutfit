@@ -1,0 +1,27 @@
+for i,v in pairs(game.Workspace:GetDescendants()) do
+	if v.Name == "ClickDetector" then
+		v.MouseClick:Connect(function(plr)
+			local character = v.Parent
+			local shirt = character.Shirt
+			local pants = character.Pants
+
+			local playerCharacter = plr.Character
+			local playerShirt = playerCharacter:FindFirstChild("Shirt")
+			local playerPants = playerCharacter:FindFirstChild("Pants")
+
+			if playerShirt then
+				playerShirt.ShirtTemplate = shirt.ShirtTemplate
+			else
+				local playerShirt = Instance.new("Shirt", playerCharacter)
+				playerShirt.ShirtTemplate = shirt.ShirtTemplate
+			end
+			if playerPants then
+				playerPants.PantsTemplate = pants.PantsTemplate
+			else
+				local playerPants = Instance.new("Pants", playerCharacter)
+				playerPants.PantsTemplate = pants.PantsTemplate
+			end
+
+		end)
+	end
+end

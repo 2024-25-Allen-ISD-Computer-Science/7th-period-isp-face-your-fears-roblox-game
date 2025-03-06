@@ -1,11 +1,11 @@
-for i,v in pairs(game.Workspace:GetDescendants()) do
-	if v.Name == "ClickDetector" then
-		v.MouseClick:Connect(function(plr)
-			local character = v.Parent
+for i,object in pairs(game.Workspace:GetDescendants()) do
+	if object.Name == "ClickDetector" then
+		object.MouseClick:Connect(function(player)
+			local character = object.Parent
 			local shirt = character.Shirt
 			local pants = character.Pants
 
-			local playerCharacter = plr.Character
+			local playerCharacter = player.Character
 			local playerShirt = playerCharacter:FindFirstChild("Shirt")
 			local playerPants = playerCharacter:FindFirstChild("Pants")
 
@@ -25,3 +25,4 @@ for i,v in pairs(game.Workspace:GetDescendants()) do
 		end)
 	end
 end
+

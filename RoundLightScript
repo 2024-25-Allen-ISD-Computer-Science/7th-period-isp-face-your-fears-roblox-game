@@ -1,0 +1,19 @@
+local light = script.Parent:FindFirstChildOfClass("SurfaceLight")
+
+if light then
+	
+	local colors = {
+		Color3.fromRGB(255, 255, 0),
+		Color3.fromRGB(128, 0, 128)
+
+	}
+
+	local interval = 0.1
+
+	while true do
+		for _, color in ipairs(colors) do
+			light.Color = color
+			task.wait(interval)
+		end
+	end
+end

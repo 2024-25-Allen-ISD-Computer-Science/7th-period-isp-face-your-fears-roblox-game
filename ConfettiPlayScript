@@ -1,0 +1,5 @@
+local Confetti = require(game.ReplicatedStorage:WaitForChild("Confetti"))
+
+game.Workspace.BasePlate.ClickDetector.MouseClick:Connect(function()
+	Confetti.Play()
+end)

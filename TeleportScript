@@ -1,0 +1,16 @@
+local teleportPlatform = script.Parent
+local teleportDestination = Vector3.new(335.5, 0.5, -900)
+
+local function onTouched(otherPart)
+	local character = otherPart.Parent
+	local humanoid = character and character:FindFirstChild("Humanoid")
+
+	if humanoid then
+		local player = game.Players:GetPlayerFromCharacter(character)
+		if player then
+			character:SetPrimaryPartCFrame(CFrame.new(teleportDestination))
+		end
+	end
+end
+
+teleportPlatform.Touched:Connect(onTouched)

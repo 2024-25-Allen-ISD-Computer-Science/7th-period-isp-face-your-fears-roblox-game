@@ -1,0 +1,72 @@
+local players = game:GetService("Players")
+local datastoreservice = game:GetService("DataStoreService")
+local database = datastoreservice:GetDataStore("database")
+local leaderboard = datastoreservice:GetOrderedDataStore("leaderboard")
+
+players.PlayerAdded:Connect(function(player: Player)
+	local leaderstats = Instance.new("Folder")
+	leaderstats.Name = "leaderstats"
+	leaderstats.Parent = player
+
+	local wins = Instance.new("NumberValue")
+	wins.Name = "Wins"
+	wins.Value = 0
+	wins.Parent = leaderstats
+	
+	local data
+	
+	pcall(function()
+		data = database:GetAsync(player.UserId)
+	end)
+	
+	if data then
+		wins.Value = data
+	end
+end)
+
+players.PlayerRemoving:Connect(function(player: Player)
+	pcall(function()
+		database:SetAsync(player.UserId, player.leaderstats.Wins.Value)
+		leaderboard:SetAsync(player.UserId, player.leaderstats.Wins.Value)
+	end)
+end)
+
+function format(value: number)
+	local formatted = value
+	while true do
+		formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+		if (k==0) then
+			break
+		end
+	end
+	return formatted
+end
+
+coroutine.wrap(function()
+	while true do
+		local results = {}
+		for i, v in pairs(leaderboard:GetSortedAsync(false, 3, 1):GetCurrentPage()) do
+			table.insert(results, {v.key, tostring(i), v.value})
+		end
+
+		for i, v in pairs(results) do
+			local userId = v[1]
+			local rank = v[2]
+			local value = v[3]
+			local playerName = players:GetNameFromUserIdAsync(userId)
+			local place = workspace.TopPlayers:FindFirstChild(rank)
+			if place then
+				place.Statue.Humanoid:ApplyDescription(players:GetHumanoidDescriptionFromUserId(userId))
+				local anim
+				pcall(function()
+					anim = place.Statue.Humanoid.Animator:LoadAnimation(place.Statue.Animation)
+				end)
+				anim:Play()
+				local formatted = format(value)
+				place.Stats.BillboardGui.Frame.PlayerName.Text = "#"..rank..": "..playerName
+				place.Stats.BillboardGui.Frame.WinAmount.Text = "WINS: "..formatted
+			end
+		end
+		task.wait(60)
+	end
+end)()

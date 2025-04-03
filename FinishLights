@@ -1,0 +1,13 @@
+local light = script.Parent
+local colors = {Color3.fromRGB(255, 223, 0), Color3.fromRGB(255, 105, 180), Color3.fromRGB(0, 255, 127)}
+local flickerTime = 0.2
+local part = script.Parent
+part.Transparency = 1
+light.Range = 10
+light.Brightness = 5
+
+while true do
+	light.Color = colors[math.random(1, #colors)]
+	light.Enabled = not light.Enabled
+	wait(flickerTime)
+end

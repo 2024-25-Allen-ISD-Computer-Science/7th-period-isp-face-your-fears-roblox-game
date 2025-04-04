@@ -1,0 +1,27 @@
+local npc = script.Parent
+local rootPart = npc:WaitForChild("HumanoidRootPart")
+local tweenService = game:GetService("TweenService")
+
+
+local pointA = workspace:WaitForChild("PointA").Position
+local pointB = workspace:WaitForChild("PointB").Position
+
+
+local tweenInfo = TweenInfo.new(5, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)  
+
+
+local moveToA = tweenService:Create(rootPart, tweenInfo, {Position = pointA})
+local moveToB = tweenService:Create(rootPart, tweenInfo, {Position = pointB})
+
+
+local function patrol()
+	while true do
+		moveToB:Play()
+		moveToB.Completed:Wait()
+		moveToA:Play()
+		moveToA.Completed:Wait()
+	end
+end
+
+
+patrol()

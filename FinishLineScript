@@ -1,23 +1,90 @@
 local finishLine = script.Parent 
-
 local debounce = {}
+local finishedPlayers = {}
+local gameActive = true
+local teleportLocation = workspace.TeleportPart
+local gameDuration = 120
+
+
+local function checkGameEnd()
+	local alivePlayers = {}
+	for _, player in pairs(game.Players:GetPlayers()) do
+		if player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
+			table.insert(alivePlayers, player)
+		end
+	end
+	if #alivePlayers == #finishedPlayers then
+		gameActive = false
+		for _, player in pairs(game.Players:GetPlayers()) do
+			if player:FindFirstChild("PlayerGui") then
+				local screenGui = Instance.new("ScreenGui")
+				local textLabel = Instance.new("TextLabel")
+				screenGui.Parent = player.PlayerGui
+				textLabel.Parent = screenGui
+				textLabel.Size = UDim2.new(1, 0, 1, 0)
+				textLabel.Text = "GAME OVER"
+				textLabel.TextColor3 = Color3.new(1, 0, 0)
+				textLabel.TextScaled = true
+				textLabel.BackgroundTransparency = 1
+				
+				task.delay(5, function()
+					screenGui:Destroy()
+				end)
+			end
+			if player.Character and teleportLocation then
+				player.Character:SetPrimaryPartCFrame(teleportLocation.CFrame)
+			end
+		end
+	end
+end
+
 
 finishLine.Touched:Connect(function(hit)
 	local character = hit.Parent
 	if character and character:FindFirstChild("Humanoid") then
 		local player = game.Players:GetPlayerFromCharacter(character)
-		if player and not debounce[player] then
+		if player and not debounce[player] and gameActive then
 			debounce[player] = true 
 			if not player:FindFirstChild("HasFinished") then
-				local hasStarted = Instance.new("BoolValue")
-				hasStarted.Name = "HasFinished"
-				hasStarted.Value = true
-				hasStarted.Parent = player
+				local hasFinished = Instance.new("BoolValue")
+				hasFinished.Name = "HasFinished"
+				hasFinished.Value = true
+				hasFinished.Parent = player
 				print(player.Name .. " has finished")
+				table.insert(finishedPlayers, player)
 			end
+			checkGameEnd()
 			task.delay(1, function()
 				debounce[player] = nil
 			end)
+		end
+	end
+end)
+
+
+task.spawn(function()
+	wait(gameDuration)
+	if gameActive then
+		gameActive = false
+		for _, player in pairs(game.Players:GetPlayers()) do
+			if player:FindFirstChild("PlayerGui") then
+				local screenGui = Instance.new("ScreenGui")
+				local textLabel = Instance.new("TextLabel")
+				screenGui.Parent = player.PlayerGui
+				textLabel.Parent = screenGui
+				textLabel.Size = UDim2.new(1, 0, 1, 0)
+				textLabel.Text = "GAME OVER"
+				textLabel.TextColor3 = Color3.new(1, 0, 0)
+				textLabel.TextScaled = true
+				textLabel.BackgroundTransparency = 1
+				
+				task.delay(3, function()
+					screenGui:Destroy()
+				end)
+			end
+			if player.Character and teleportLocation then
+				player.Character:SetPrimaryPartCFrame(teleportLocation.CFrame)
+			end
 		end
 	end
 end)

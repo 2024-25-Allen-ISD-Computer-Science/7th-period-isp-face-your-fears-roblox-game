@@ -1,0 +1,14 @@
+local colors = {
+	"Maroon",
+	"Lime green",
+	"New Yeller",
+	"Lapis"
+}
+
+local t = 1
+local max = table.getn(colors)
+
+while wait(t) do
+	local rand = math.random(1,max)
+	script.Parent.BrickColor = BrickColor.new(colors[rand])
+end
